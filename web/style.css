@@ -191,18 +191,12 @@ html, body {
   transition: color .3s;
 }
 
-/* ── Tab Layouts ────────────────────────────────────────────── */
-.tab-content {
-  display: none !important;
-}
-
-.tab-content.active {
+/* ── Main Layout ────────────────────────────────────────────── */
+.main-layout,
+#tab-play {
   display: flex !important;
-}
-
-#tab-play:not(.active),
-#tab-history:not(.active) {
-  display: none !important;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* ── History Layout ─────────────────────────────────────────── */
@@ -1896,7 +1890,7 @@ html, body {
   }
 
   /* Tahta üstte, ayarlar aşağıda */
-  #tab-play.active {
+  #tab-play, .main-layout {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -2051,7 +2045,7 @@ html, body {
   }
 
   /* Oyun Sekmesi: Tahta solda, Ayarlar ve Hamleler sağda */
-  #tab-play.active {
+  #tab-play, .main-layout {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
