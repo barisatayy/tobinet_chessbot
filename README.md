@@ -1,10 +1,10 @@
-# ♟️ TobiNet Chess AI
+# TobiNet Chess AI
 
 TobiNet, PyTorch derin öğrenme mimarisi üzerine inşa edilmiş özel satranç motorlarına ve modern, mobil uyumlu bir web arayüzüne sahip bir satranç yapay zekasıdır.
 
 ---
 
-## 🚀 Özellikler
+## Özellikler
 
 - **Yapay Zeka Motorları:**
   - **Tobi Light:** Hızlı değerlendirme ve sezgisel hamle seçimi.
@@ -19,7 +19,7 @@ TobiNet, PyTorch derin öğrenme mimarisi üzerine inşa edilmiş özel satranç
 
 ---
 
-## 🛠️ Kurulum
+## Kurulum
 
 ### 1. Depoyu Klonlayın
 ```bash
@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🎮 Çalıştırma
+## Çalıştırma
 
 Sunucuyu başlatmak için:
 ```bash
