@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TobiNet Satranç</title>
+  <meta name="description" content="TobiNet Satranç AI — Tobi Light ve Tobi Mid Yapay Zeka Motorları" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <!-- chessboard.js -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" />
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <!-- jQuery (chessboard.js gerektirir) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- chess.js -->
+  <script src="https://unpkg.com/chess.js@0.10.3/chess.js"></script>
+  <!-- chessboard.js -->
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- ===================== TOPBAR ===================== -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-left">
+      <div class="brand">
+        <span class="logo-text">TobiNet Satranç</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Kullanıcı Profili Rozeti -->
+      <div class="user-profile-badge" id="user-profile-badge" onclick="UserModule.openEditModal()"
+        title="Kullanıcı adını değiştir">
+        <span class="user-display-name" id="topbar-username">Oyuncu</span>
+        <span class="user-edit-text">Değiştir</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN: PLAY VS BOT ===================== -->
+  <main class="main-layout" id="tab-play">
+    <!-- CENTER/LEFT: Satranç Tahtası ve Oyuncu Barları -->
+    <section class="board-section">
+      <!-- 1. Üst Oyuncu Kartı (Rakip Bot) -->
+      <div class="board-player-row header" id="play-player-top">
+        <div class="player-info-wrap">
+          <div class="player-tag bot" id="play-top-tag">
+            <span class="player-name" id="play-bot-name">Tobi Light</span>
+            <span class="player-elo" id="play-engine-badge" style="display: none;"></span>
+          </div>
+          <div class="captured-pieces" id="play-captured-top"></div>
+        </div>
+        <div class="player-clock-box" id="play-clock-top">10:00</div>
+      </div>
+
+      <!-- 2. Tahta ve Üzerindeki Katmanlar -->
+      <div class="board-wrap">
+        <div id="play-board" class="board-blurred"></div>
+
+        <!-- Maç Bittiğinde Çıkan Küçük ve Şık Bildirim Kutusu (Game Over Card) -->
+        <div class="gameover-compact-box hidden" id="play-gameover-card">
+          <div class="go-text-wrap">
+            <div class="go-title" id="go-title">Oyun Bitti</div>
+            <div class="go-sub" id="go-reason">Şah Mat (Sen Kazandın)</div>
+          </div>
+          <div class="go-btn-row">
+            <button type="button" class="btn btn-start btn-sm" onclick="PlayApp.openSetupScreen()">
+              Yeni Oyuna Başla
+            </button>
+            <button type="button" class="btn btn-nav btn-sm" onclick="PlayApp.reviewCurrentGame()">
+              Hamleleri İncele
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Alt Oyuncu Kartı (Sen) -->
+      <div class="board-player-row footer" id="play-player-bottom">
+        <div class="player-info-wrap">
+          <div class="player-tag user" id="play-bottom-tag">
+            <span class="player-name" id="play-bottom-name">Oyuncu</span>
+            <span class="player-elo" id="play-bottom-badge" style="display: none;"></span>
+          </div>
+          <div class="captured-pieces" id="play-captured-bottom"></div>
+        </div>
+        <div class="player-clock-box" id="play-clock-bottom">10:00</div>
+      </div>
+    </section>
+
+    <!-- RIGHT/BELOW: Oyun Ayarları ve Kontroller -->
+    <aside class="sidebar-right play-unified-sidebar">
+      <!-- 1. Oyun Ayarları Paneli (Maç Başlamadan Önce Açık) -->
+      <div class="play-setup-card" id="play-setup-card">
+        <div class="setup-header">
+          <div class="setup-title-box">
+            <h3 class="setup-title">Yeni Maç Ayarları</h3>
+            <p class="setup-sub">Tercihlerini belirle ve maça başla</p>
+          </div>
+        </div>
+
+        <!-- Rengin -->
+        <div class="setup-field">
+          <span class="setup-label">Rengin</span>
+          <div class="setup-btn-group" id="setup-color-group">
+            <button type="button" class="setup-pill active" id="setup-color-white"
+              onclick="PlayApp.selectColor('white')">
+              Beyaz
+            </button>
+            <button type="button" class="setup-pill" id="setup-color-black" onclick="PlayApp.selectColor('black')">
+              Siyah
+            </button>
+          </div>
+        </div>
+
+        <!-- Rakip Bot -->
+        <div class="setup-field">
+          <span class="setup-label">Rakip Bot</span>
+          <div class="setup-btn-group" id="setup-engine-group">
+            <button type="button" class="setup-pill active" id="setup-engine-light"
+              onclick="PlayApp.selectEngine('tobi_light')">
+              Tobi Light
+            </button>
+            <button type="button" class="setup-pill" id="setup-engine-mid" onclick="PlayApp.selectEngine('tobi_mid')">
+              Tobi Mid
+            </button>
+          </div>
+        </div>
+
+        <!-- Süre -->
+        <div class="setup-field">
+          <span class="setup-label">Süre</span>
+          <div class="setup-time-grid" id="setup-time-group">
+            <button type="button" class="setup-time-pill" id="setup-time-1" onclick="PlayApp.selectTime(1)">1
+              dk</button>
+            <button type="button" class="setup-time-pill" id="setup-time-3" onclick="PlayApp.selectTime(3)">3
+              dk</button>
+            <button type="button" class="setup-time-pill" id="setup-time-5" onclick="PlayApp.selectTime(5)">5
+              dk</button>
+            <button type="button" class="setup-time-pill active" id="setup-time-10" onclick="PlayApp.selectTime(10)">10
+              dk</button>
+            <button type="button" class="setup-time-pill" id="setup-time-15" onclick="PlayApp.selectTime(15)">15
+              dk</button>
+            <button type="button" class="setup-time-pill" id="setup-time-unlimited"
+              onclick="PlayApp.selectTime('unlimited')">Sınırsız</button>
+          </div>
+        </div>
+
+        <!-- Maça Başla Butonu -->
+        <button type="button" class="btn btn-setup-start" id="btn-start-game" onclick="PlayApp.startGame()">
+          MAÇA BAŞLA
+        </button>
+      </div>
+
+      <!-- 2. Aktif Oyun Aksiyon ve Durum Kartı (Maç Başlayınca Görünür) -->
+      <div class="play-action-card hidden" id="play-action-card">
+        <button class="btn btn-start"
+          style="width: 100%; justify-content: center; height: 36px; font-size: 13px; font-weight: 700; margin-bottom: 8px;"
+          onclick="PlayApp.openSetupScreen()">
+          YENİ MAÇ AYARLARI
+        </button>
+        <div class="action-btn-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+          <button class="btn btn-nav" style="justify-content: center; padding: 7px 4px; font-size: 11px;"
+            onclick="PlayApp.undoMove()">Geri</button>
+          <button class="btn btn-nav" style="justify-content: center; padding: 7px 4px; font-size: 11px;"
+            onclick="PlayApp.flipBoard()">Çevir</button>
+          <button class="btn btn-nav"
+            style="justify-content: center; padding: 7px 4px; font-size: 11px; color: #f87171;"
+            onclick="PlayApp.resign()">Terk</button>
+          <button class="btn btn-nav"
+            style="justify-content: center; padding: 7px 4px; font-size: 11px; color: #fbbf24;"
+            onclick="PlayApp.offerDraw()">Berabere</button>
+        </div>
+
+        <!-- Canlı Maç Durum Bilgileri -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 6px; margin-top: 10px;">
+          <div class="info-card" style="padding: 6px 8px;">
+            <div class="info-label" style="font-size: 9px;" id="play-lbl-engine">Aktif Bot</div>
+            <div class="info-value" id="play-val-engine"
+              style="font-size: 11px; color: #60a5fa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Tobi Light</div>
+          </div>
+          <div class="info-card" style="padding: 6px 8px;">
+            <div class="info-label" style="font-size: 9px;">Sıra</div>
+            <div class="info-value" id="play-status-text" style="font-size: 11px; color: var(--green);">Senin Sıran
+            </div>
+          </div>
+          <div class="info-card" style="padding: 6px 8px;">
+            <div class="info-label" style="font-size: 9px;">Hamle</div>
+            <div class="info-value mono" id="play-val-moves" style="font-size: 11px;">0</div>
+          </div>
+        </div>
+
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 11px; color: var(--text-muted);">Son Hamle:</span>
+            <span class="info-value mono" id="play-last-move-val"
+              style="font-size: 12px; font-weight: 700; color: #93c5fd;">—</span>
+          </div>
+          <button class="btn-sound-toggle" id="sound-toggle" onclick="PlayApp.toggleSound()" title="Sesi Aç/Kapat"
+            style="font-size: 11px; padding: 4px 10px;">Ses Açık</button>
+        </div>
+
+        <!-- Hamle Adımları Navigasyonu (Sağ Panel) -->
+        <div class="board-nav-bar" id="play-nav-bar" style="width: 100%; margin-top: 10px; box-sizing: border-box;">
+          <div class="board-nav-controls" style="width: 100%; justify-content: space-between;">
+            <button type="button" class="btn-nav-step" id="btn-play-first" onclick="PlayApp.navToStart()"
+              title="Başlangıç Pozisyonu (Home / ↑)" disabled>|◀</button>
+            <button type="button" class="btn-nav-step" id="btn-play-prev" onclick="PlayApp.navPrev()"
+              title="Önceki Hamle (←)" disabled>◀</button>
+            <div class="nav-position-badge" id="play-nav-badge" title="Pozisyon Durumu">
+              <span class="nav-status-dot live" id="play-nav-dot"></span>
+              <span id="play-nav-text">Canlı</span>
+            </div>
+            <button type="button" class="btn-nav-step" id="btn-play-next" onclick="PlayApp.navNext()"
+              title="Sonraki Hamle (→)" disabled>▶</button>
+            <button type="button" class="btn-nav-step" id="btn-play-last" onclick="PlayApp.navToLive()"
+              title="Canlı Pozisyona Git (End / ↓)" disabled>▶|</button>
+          </div>
+        </div>
+
+        <!-- İnceleme Şeridi -->
+        <div class="nav-review-banner hidden" id="play-review-banner"
+          style="width: 100%; margin-top: 8px; box-sizing: border-box;">
+          <div class="nav-review-info">
+            <span id="play-review-msg" style="font-size: 11px;">Hamle inceleniyor</span>
+          </div>
+          <button type="button" class="btn-return-live" onclick="PlayApp.navToLive()">● Canlı</button>
+        </div>
+
+        <!-- Hamle Notasyon Tablosu -->
+        <div class="moves-table-container"
+          style="width: 100%; margin-top: 10px; max-height: 160px; overflow-y: auto; box-sizing: border-box;">
+          <table class="moves-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th id="th-play-white">Beyaz</th>
+                <th id="th-play-black">Siyah</th>
+              </tr>
+            </thead>
+            <tbody id="play-moves-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ===================== USERNAME MODAL ===================== -->
+  <div class="modal-backdrop" id="username-backdrop" style="display: none;"></div>
+  <div class="modal user-modal" id="username-modal" style="display: none;">
+    <div class="modal-header" style="position: relative; justify-content: center; text-align: center;">
+      <h2 id="username-modal-title">TobiNet Satranç</h2>
+      <button class="modal-close" id="btn-close-username-modal" onclick="UserModule.closeModal()"
+        style="display: none; position: absolute; right: 16px;">✕</button>
+    </div>
+    <div class="modal-body" style="text-align: center; padding: 24px 28px;">
+      <p class="user-modal-sub" id="username-modal-desc"
+        style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">
+        Satranç maçlarında kullanılacak kullanıcı adınızı belirleyin:
+      </p>
+      <div class="field-group">
+        <input type="text" class="field-input username-field-input" id="input-username" maxlength="16"
+          placeholder="Kullanıcı adınızı yazın..." autocomplete="off"
+          style="text-align: center; font-size: 15px; font-weight: 600; padding: 12px;"
+          onkeydown="if(event.key==='Enter') UserModule.saveUsername()" />
+      </div>
+      <div id="username-error-msg" style="color: #f87171; font-size: 11px; margin-top: 8px; display: none;"></div>
+    </div>
+    <div class="modal-footer" style="justify-content: center; padding: 16px 24px;">
+      <button type="button" class="btn btn-start"
+        style="width: 100%; justify-content: center; height: 42px; font-size: 13px; font-weight: 700;"
+        onclick="UserModule.saveUsername()">
+        OYUNA BAŞLA
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

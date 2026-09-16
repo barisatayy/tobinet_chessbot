@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
+games.db
+stockfish*
+scratch/
+.gemini/
+*.log
+Dockerfile
+.dockerignore
+ai/checkpoints/best_model.pt
