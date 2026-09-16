@@ -11,10 +11,8 @@ TobiNet, PyTorch derin öğrenme mimarisi üzerine inşa edilmiş özel satranç
   - **Tobi Mid:** Derin arama ve pozisyon analizi ile güçlendirilmiş ResNet mimarisi.
 - **Modern Web Arayüzü:**
   - Hem masaüstü hem de mobil cihazlar için optimize edilmiş responsive tasarım.
-  - **İkili Etkileşim:** İster taşı sürükleyip bırakın, isterseniz taşa tıklayıp beliren yeşil yasal hamle noktalarına dokunarak oynayın.
   - **Hamle İnceleme:** Oynanan maç esnasında veya maç bittiğinde yön tuşları ya da navigasyon butonlarıyla hamleleri ileri-geri sarıp anlık analiz yapabilme.
 - **Oyun Modları & Süre:**
-  - İnsan vs Bot veya Bot vs Bot modları.
   - 1, 3, 5, 10, 15 dakika veya sınırsız süre seçenekleri.
 
 ---
